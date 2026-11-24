@@ -3,6 +3,6 @@ import { HomeComponent } from './features/home/home.component';
 import { requireSession } from './require-session';
 
 export const routes: Routes = [
-  { path: 'docs', component: HomeComponent, canActivate: [requireSession] },
-  { path: '**', redirectTo: 'docs' },
+  { path: '', component: HomeComponent, canActivate: [requireSession] },
+  { path: '**', redirectTo: '' },
 ];
