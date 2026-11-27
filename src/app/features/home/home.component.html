@@ -1,2 +1,59 @@
-<noah-page-heading title="文件" [breadcrumbs]="[{ label: '首頁', href: portalHome }, { label: '文件' }]" />
-<p class="note">這個專案剛開好，功能接著做。</p>
+<noah-page-heading title="文件" [breadcrumbs]="[{ label: '首頁', href: '/portal' }, { label: '文件' }]" />
+
+<div class="documents">
+  <section class="panel" aria-label="上傳檔案">
+    <label for="document-file">選擇檔案</label>
+    <div class="upload">
+      <input #fileInput id="document-file" type="file" [accept]="allowedExtensions"
+        [disabled]="!ready() || loading() || busy()" (change)="select(fileInput)" aria-describedby="upload-limit" />
+      <button type="button" class="primary" [disabled]="!ready() || loading() || busy() || !selection()"
+        (click)="upload(fileInput)">上傳檔案</button>
+    </div>
+    <p id="upload-limit" class="muted">支援 PDF、Word、Excel、PowerPoint、PNG、JPEG、GIF、WebP。單檔上限 20 MB。</p>
+    @if (progress(); as percent) {
+      <div class="progress">
+        <progress [value]="percent" max="100" aria-label="上傳進度"></progress>
+        <span>{{ percent < 100 ? percent + '%' : '處理中…' }}</span>
+      </div>
+    } @else if (progress() === 0) {
+      <p role="status">準備上傳…</p>
+    }
+    @if (error()) {
+      <p class="error" role="alert">{{ error() }}</p>
+    }
+    @if (notice()) {
+      <p role="status">{{ notice() }}</p>
+    }
+  </section>
+
+  <section class="panel" aria-labelledby="document-list-heading" [attr.aria-busy]="loading()">
+    <div class="list-header">
+      <h2 id="document-list-heading">我的文件</h2>
+      <button type="button" [disabled]="loading() || busy()" (click)="load()">重新整理</button>
+    </div>
+    @if (loading()) {
+      <p class="muted" role="status">正在載入文件…</p>
+    } @else if (ready()) {
+      @if (documents().length) {
+        <ul class="list">
+          @for (item of documents(); track item.id) {
+            <li>
+              <div class="file">
+                <strong>{{ item.name }}</strong>
+                <span class="muted">{{ fileSize(item.sizeBytes) }} · {{ item.createdAt | date:'yyyy/MM/dd HH:mm' }}</span>
+              </div>
+              <div class="actions">
+                <button type="button" [disabled]="busy()" [attr.aria-label]="'下載 ' + item.name"
+                  (click)="download(item)">下載</button>
+                <button type="button" class="danger" [disabled]="busy()" [attr.aria-label]="'刪除 ' + item.name"
+                  (click)="remove(item)">刪除</button>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="muted">目前沒有文件。</p>
+      }
+    }
+  </section>
+</div>
